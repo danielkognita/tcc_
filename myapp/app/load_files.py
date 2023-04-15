@@ -3,8 +3,7 @@ from django.shortcuts import redirect, render
 from myapp.forms import DocumentForm
 from myapp.models import Document
 
-    
-def load_files(request):
+def main(request):
     print(f"Excelente! Você está usando o Python 3.6+. Se você falhar aqui, use a versão correta.")
     message = 'Carregue novos arquivos no formato .csv!'
     # Handle file upload

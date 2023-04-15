@@ -1,7 +1,6 @@
 certifi==2021.5.30
 colorama==0.4.4
 Django==3.2.7
-django-bootstrap4==1.1.1
 django-crispy-forms==1.12.0
 furl==2.1.2
 isort==5.9.3
@@ -45,6 +44,8 @@ tqdm==4.62.2
 wheel==0.37.1
 djangorestframework
 requests
+django-utils-six
 gunicorn==20.1.0
 awaits==0.0.1
+whitenoise
 

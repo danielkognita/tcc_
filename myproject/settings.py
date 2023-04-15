@@ -11,6 +11,9 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 """
 
 import os
+from django.urls import include
+
+from importlib_resources import path
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -28,11 +31,13 @@ SECRET_KEY = '@2tcr%p+je0h#+ujlqu*s%ax!$s2%^w9rh%=eg2jv270o3p0+b'
 
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-
-ALLOWED_HOSTS = ['http://tccdanielsilvatest.ddns.net/','tccdanielsilva.ddns.net','tccdanielsilva.ddns.net:8000','0.0.0.0','192.168.18.1','192.168.18.17', '127.0.0.1','168.181.51.79','100.65.202.133','tccgraf.herokuapp.com' , 'tccgraf.herokuapp.com','localhost',
-                 'tcc.dan','tccgraf.herokuapp.com/result', 'tccgraf.herokuapp.com/result/result']
+DEBUG = False
+PORT = int(os.environ.get('PORT', '8080'))
+#ALLOWED_HOSTS = ['http://tccdanielsilvatest.ddns.net/','tccdanielsilva.ddns.net','tccdanielsilva.ddns.net:8000','0.0.0.0','0.0.0.0:8081','0.0.0.0:8000','192.168.18.1','192.168.18.17', '127.0.0.1','168.181.51.79','100.65.202.133','tccgraf.herokuapp.com' , 'tccgraf.herokuapp.com','localhost',
+#                 'tcc.dan','tccgraf.herokuapp.com/result', 'tccgraf.herokuapp.com/result/result','celtic-buttress-382723.appspot.com','celtic-buttress-382723.appspot.com:8000']
 # Application definition
+ALLOWED_HOSTS = ['*'] 
+WSGI_APPLICATION = 'myproject.wsgi.application'
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -60,7 +65,7 @@ ROOT_URLCONF = 'myproject.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -73,7 +78,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'myproject.wsgi.application'
+
 
 
 # Database
@@ -105,7 +110,18 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+urlpatterns = [
+    path('api-auth/', include('rest_framework.urls')),
+    path('auth/', include('rest_framework.urls'))
+]
 
+REST_FRAMEWORK = {
+    # Use Django's standard `django.contrib.auth` permissions,
+    # or allow read-only access for unauthenticated users.
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
+    ]
+}
 # Internationalization
 # https://docs.djangoproject.com/en/3.0/topics/i18n/
 
@@ -129,3 +145,4 @@ MEDIA_URL_EXP = '/exports/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_ROOT_EXP = os.path.join(BASE_DIR, 'exports')
 
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'media'), os.path.join(BASE_DIR, 'exports'), ]

@@ -1,7 +1,6 @@
 import asyncio
 from django.urls import path, include
-from myapp.api import viewsets as ExperimentoViewSet
-from .app.load_files import load_files
+from .app.load_files import main
 from rest_framework import routers
 from .app.list_process_id import list_process_id
 from .app.graf_medida import graf_medida
@@ -14,7 +13,7 @@ from .app.list_process import list_process
 from .app.list_experimento import list_experimento
 
 urlpatterns = [
-    path('', load_files, name='my-view'),
+    path('', main, name='my-view'),
     path('result/gerar', build_process, name='build-process'),
     path('result/listar',  list_process, name='list-process'),
     path('result/listar',  list_experimento),
