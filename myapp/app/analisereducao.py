@@ -133,7 +133,8 @@ def analise_experimento_reducao(request,nome):
             # criando dataframe com as medidas constantes
             lista_med_constantes = pd.DataFrame(columns = ['dataset','medida','valor_da_medida','reducao'])
             # criando dataframe com as medidas variantes
-            lista_med_variaram = pd.DataFrame(columns = ['dataset','medida','reducao', 'média_medida','std_medida','coeficiente_de_variacao'])
+            lista_med_variaram = pd.DataFrame(columns = ['dataset','medida','reducao', 'média_medida','std_medida','coeficiente_de_variacao_em_%'])
+            lista_med_variaram_ = pd.DataFrame(columns = ['dataset','medida','reducao', 'média_medida','std_medida','coeficiente_de_variacao_em_%'])
             
         
             #iterando as medidas para comparar o valor da medida do resultado com a medida do original
@@ -151,18 +152,21 @@ def analise_experimento_reducao(request,nome):
                         #adicionando medida no dataframe de medidas variantes
                         mean = (df_media[medida].values).round(2)
                         std =  df[medida][ii]
-                        cv= (mean/std).round(2)
+                        cv= (std/mean).round(2)
+                        cv=cv*100
                       
-                        lista_med_variaram.loc[lin] = namefile,df[medida].name,nreducao[0],mean[0], std, cv
+                        lista_med_variaram_.loc[lin] = namefile,df[medida].name,nreducao[0],mean[0], std, cv
+                        lista_med_variaram = lista_med_variaram_[lista_med_variaram_.min(axis=1) >0]
                     ii=ii+1
                     #contador de linhas para o dataframe
                     lin = lin + 1
             #gera rank medidas variantes por desvio padrao rank_std  e tamanho de reducao
-            lista_med_variaram['rank_cv'] = lista_med_variaram['coeficiente_de_variacao'].rank()
+            lista_med_variaram['rank_cv'] = lista_med_variaram['coeficiente_de_variacao_em_%'].rank()
             #organiza medidas contastantes por valor da medida
             lista_med_constantes = lista_med_constantes.sort_values(by='valor_da_medida',ascending=True)
             #elimina os NANs da medidas variantes
             lista_med_variaram = lista_med_variaram.dropna(axis=0)
+            
             #organiza medidas variantes por rank de desvio padrao
             lista_med_variaram = lista_med_variaram.sort_values(by='rank_cv',ascending=True)
             

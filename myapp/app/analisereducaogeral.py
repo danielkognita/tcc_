@@ -111,6 +111,7 @@ def analise_experimento_reducao_geral(request,nome):
             lista_med_constantes = pd.DataFrame(columns = ['medida','valor_da_medida','reducao'])
             # criando dataframe com as medidas variantes
             lista_med_variaram = pd.DataFrame(columns = ['reducao_em_%','medida','média_medida','std_medida','cv_medida_em_%'])
+            lista_med_variaram_ = pd.DataFrame(columns = ['dataset','medida','reducao', 'média_medida','std_medida','coeficiente_de_variacao_em_%'])
             
         
             #iterando as medidas para comparar o valor da medida do resultado com a medida do original
@@ -135,11 +136,12 @@ def analise_experimento_reducao_geral(request,nome):
                       
                         std = round(std, 1)
                       
-                        cv_medida = (mean/std)
+                        cv_medida = (std/mean)
                   
                         cv_medida = round(cv_medida, 1)
                         lista_med_variaram.loc[lin] = nreducao[0]*100,df1[medida].name, mean, std,\
                         cv_medida
+                        
                     ii=ii+1
                     #contador de linhas para o dataframe
                     lin = lin + 1
@@ -154,7 +156,8 @@ def analise_experimento_reducao_geral(request,nome):
             
             #adiciona lista de medidas variantes pir 
 
-            lista_med_variaram = lista_med_variaram.reset_index(drop=True)
+            lista_med_variaram_ = lista_med_variaram.reset_index(drop=True)
+            lista_med_variaram = lista_med_variaram_[lista_med_variaram_.min(axis=1) >0]
             #####################
             #df_union_variaram_head = pd.concat([df_union_variaram_head, lista_med_variaram], ignore_index=True)
             lista_med_variaram_head = lista_med_variaram
@@ -183,10 +186,10 @@ def analise_experimento_reducao_geral(request,nome):
         list_medidas_constantes_head_ = list_medidas_constantes_head_.append(constantes_head, ignore_index=True)
     list_medidas_constantes_head_['mean'] = list_medidas_constantes_head_.mean(axis=1)
     list_medidas_constantes_head_['std'] = list_medidas_constantes_head_.std(axis=1)
-    list_medidas_constantes_head_['cv_geral'] = list_medidas_constantes_head_['mean']/ list_medidas_constantes_head_['std'].round(2)
-
+    list_medidas_constantes_head_['cv_geral_em_%'] = list_medidas_constantes_head_['std']/list_medidas_constantes_head_['mean'].round(2)
+    list_medidas_constantes_head_['cv_geral_em_%'] = list_medidas_constantes_head_['cv_geral_em_%']*10
   
-    list_medidas_constantes_head_['rank_cv_geral'] = list_medidas_constantes_head_['cv_geral'].rank()
+    list_medidas_constantes_head_['rank_cv_geral'] = list_medidas_constantes_head_['cv_geral_em_%'].rank()
     list_medidas_constantes_head_ = list_medidas_constantes_head_.sort_values(by='medida',ascending=False)
    
     list_medidas_constantes_head_ = list_medidas_constantes_head_.head(100).to_html()
@@ -198,10 +201,11 @@ def analise_experimento_reducao_geral(request,nome):
     #print(list_medidas_variantes_head_)
     list_medidas_variantes_head_['mean'] = list_medidas_variantes_head_.mean(axis=1).round(2)
     list_medidas_variantes_head_['std'] = list_medidas_variantes_head_.std(axis=1).round(2)
-    list_medidas_variantes_head_['cv_geral'] = (list_medidas_variantes_head_['mean']/ list_medidas_variantes_head_['std'] ).round(2)
-    list_medidas_variantes_head_['cv_geral'] = list_medidas_variantes_head_['cv_geral'].apply(lambda x: '{:,.2f}'.format(x))
+    list_medidas_variantes_head_['cv_geral_em_%'] = ( list_medidas_variantes_head_['std']/list_medidas_variantes_head_['mean'] ).round(2)
+    list_medidas_variantes_head_['cv_geral_em_%'] = list_medidas_variantes_head_['cv_geral_em_%']*10
+    list_medidas_variantes_head_['cv_geral_em_%'] = list_medidas_variantes_head_['cv_geral_em_%'].apply(lambda x: '{:,.2f}'.format(x))
     list_medidas_variantes_head_=list_medidas_variantes_head_.drop(['média_medida','std_medida',	'cv_medida_em_%'], axis=1)
-    list_medidas_variantes_head_['rank_cv_geral'] = list_medidas_variantes_head_['cv_geral'].rank()
+    list_medidas_variantes_head_['rank_cv_geral'] = list_medidas_variantes_head_['cv_geral_em_%'].rank()
     list_medidas_variantes_head_ = list_medidas_variantes_head_.dropna(axis=0,subset=['std'])
     list_medidas_variantes_head_ = list_medidas_variantes_head_.sort_values(by=['rank_cv_geral','medida'],ascending=True)
     list_medidas_variantes_head_ = list_medidas_variantes_head_.to_html()
@@ -212,9 +216,10 @@ def analise_experimento_reducao_geral(request,nome):
     list_medidas_variantes_tail_ = list_medidas_variantes_tail_.groupby(by=['medida','reducao_em_%'],sort=False,as_index=False ).sum()
     list_medidas_variantes_tail_['mean'] = list_medidas_variantes_tail_.mean(axis=1).round(2)
     list_medidas_variantes_tail_['std'] = list_medidas_variantes_tail_.std(axis=1).round(2)
-    list_medidas_variantes_tail_['cv_geral'] = (list_medidas_variantes_tail_['mean']/ list_medidas_variantes_tail_['std']).round(2)
+    list_medidas_variantes_tail_['cv_geral_em_%'] = (list_medidas_variantes_tail_['std']/list_medidas_variantes_tail_['mean']).round(2)
+    list_medidas_variantes_tail_['cv_geral_em_%'] = list_medidas_variantes_tail_['cv_geral_em_%']*10
     list_medidas_variantes_tail_=list_medidas_variantes_tail_.drop(['média_medida','std_medida',	'cv_medida_em_%'], axis=1)
-    list_medidas_variantes_tail_['rank_cv_geral'] = list_medidas_variantes_tail_['cv_geral'].rank()
+    list_medidas_variantes_tail_['rank_cv_geral'] = list_medidas_variantes_tail_['cv_geral_em_%'].rank()
     list_medidas_variantes_tail_ = list_medidas_variantes_tail_.dropna(axis=0,subset=['std'])
     list_medidas_variantes_tail_ = list_medidas_variantes_tail_.sort_values(by=['rank_cv_geral'],ascending=True)
     

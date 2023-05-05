@@ -131,7 +131,7 @@ def analise_experimento(request,nome):
             lista_med_constantes = pd.DataFrame(columns = ['dataset','medida','valor_da_medida'])
             # criando dataframe com as medidas variantes
             lista_med_variaram = pd.DataFrame(columns = ['dataset','medida','media_da_medida', 'std_medida','cv_medida'])
-            
+            lista_med_variaram_= pd.DataFrame(columns = ['dataset','medida','media_da_medida', 'std_medida','cv_medida'])
             lin = 0
             #iterando as medidas para comparar o valor da medida do resultado com a medida do original
             for medida in medidas:
@@ -141,9 +141,11 @@ def analise_experimento(request,nome):
                     lista_med_constantes.loc[lin] = namefile, df_original[medida].name, df_original[medida][0]
                 #caso medida do resultado seja diferente da medida do original, signigica que a medida teve variacao
                 if df_media[medida].values != df_original[medida].values:
-                    cv = (df_media[medida][0]/df_std[medida][0]).round(2)
+                    cv = (df_std[medida][0]/df_media[medida][0]).round(2)
+                    cv=cv*100
                     #adicionando medida no dataframe de medidas variantes
-                    lista_med_variaram.loc[lin] = namefile, df_media[medida].name, df_media[medida][0].round(2), df_std[medida][0].round(2), cv
+                    lista_med_variaram_.loc[lin] = namefile, df_media[medida].name, df_media[medida][0].round(2), df_std[medida][0].round(2), cv
+                    lista_med_variaram = lista_med_variaram_[lista_med_variaram_.min(axis=1) > 0]
                 #contador de linhas para o dataframe
                 lin = lin + 1
                 
